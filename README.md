@@ -6,7 +6,6 @@ SUSE Rancher for AWS provides a fully managed control plane for **multi-cluster 
 
 The application deployment itself is unchanged from the upstream project. The only difference is how the UI service is exposed when Traefik is already installed.
 
----
 
 ### Prerequisites
 
@@ -21,7 +20,6 @@ You can verify the IngressClass from Rancher’s Cluster Explorer or via the CLI
 kubectl get ingressclass
 ```
 
----
 
 ### Step 1: Deploy the Application
 
@@ -41,7 +39,6 @@ kubectl wait --for=condition=available deployments --all
 
 SUSE Rancher for AWS provides centralized visibility into deployment status, pod health, logs, and events across all connected clusters.
 
----
 
 ### Step 2: Update the UI Service for Traefik
 
@@ -54,8 +51,6 @@ kubectl patch svc ui -p '{"spec":{"type":"ClusterIP"}}'
 ```
 
 This keeps external access centralized through Traefik and aligns with ingress-based routing best practices.
-
----
 
 ### Step 3: Create a Traefik Ingress Resource
 
@@ -90,8 +85,6 @@ kubectl apply -f ui-ingress.yaml
 
 If your cluster uses a different Traefik IngressClass name, update the `ingressClassName` field accordingly.
 
----
-
 ### Step 4: Configure DNS
 
 Point the hostname used in the Ingress (for example `retail.example.com`) to Traefik’s external address.
@@ -104,7 +97,6 @@ kubectl get svc -n traefik
 
 Create a DNS A or CNAME record that resolves to this address.
 
----
 
 ### Step 5: Verify Access and RBAC
 
@@ -126,8 +118,6 @@ This approach is **recommended for demos** when running the retail-store-sample-
 
 It avoids DNS and `/etc/hosts` configuration by creating a **hostless Ingress** that matches **any hostname**, including the AWS ELB DNS name created by Traefik.
 
----
-
 ## When to use this
 
 Use this method when:
@@ -137,8 +127,6 @@ Use this method when:
 * You want to access the UI quickly using the ELB URL
 * You are running a demo or workshop
 
----
-
 ## Background
 
 Kubernetes Ingress rules that specify a `host` only match requests with a matching **Host header**.
@@ -147,7 +135,6 @@ If you try to access the application using the raw ELB DNS name, the request wil
 
 A **hostless Ingress rule** solves this by matching requests for **any host**.
 
----
 
 ## Solution: Create a hostless Ingress
 
@@ -188,8 +175,6 @@ kubectl apply -f https://raw.githubusercontent.com/everythingeverywhere/retail-s
 ```
 
 This manifest defines a hostless Traefik Ingress that routes traffic to the `ui` service regardless of hostname.
-
----
 
 ## Access the UI
 
@@ -232,8 +217,6 @@ kubectl delete ingress retail-ui-anyhost -n default
 
 Your original host-based Ingress (for example `retail.example.com`) will continue to work as before.
 
----
-
 ### Multi-Cluster Usage with SUSE Rancher for AWS
 
 Because SUSE Rancher for AWS provides centralized access control and governance, the same deployment pattern can be reused safely across multiple EKS clusters such as development, staging, and production.
@@ -244,8 +227,6 @@ Teams can:
 * Reuse the same manifests without modification
 * Manage access and visibility from a single control plane
 
----
-
 ### Cleanup
 
 To remove the application and routing configuration:
@@ -254,11 +235,6 @@ To remove the application and routing configuration:
 kubectl delete -f ui-ingress.yaml
 kubectl delete -f https://github.com/aws-containers/retail-store-sample-app/releases/latest/download/kubernetes.yaml
 ```
-
-
----
-
-Upstream source code bellow of orignal application.
 
 ---
 
