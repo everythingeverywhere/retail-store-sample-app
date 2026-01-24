@@ -1,3 +1,163 @@
+## Deploying the Retail Store Sample App with Traefik on SUSE Rancher for AWS
+
+This guide explains how to deploy the Retail Store Sample App on **Amazon EKS clusters managed by SUSE Rancher for AWS**, using **Traefik** as the Ingress controller.
+
+SUSE Rancher for AWS provides a fully managed control plane for **multi-cluster Kubernetes**, including **centralized RBAC**, consistent governance, and visibility across clusters. Once an EKS cluster is connected to Rancher, application deployment follows standard Kubernetes workflows and can be reused consistently across environments.
+
+The application deployment itself is unchanged from the upstream project. The only difference is how the UI service is exposed when Traefik is already installed.
+
+---
+
+### Prerequisites
+
+* One or more Amazon EKS clusters connected to **SUSE Rancher for AWS**
+* Traefik installed as the cluster Ingress controller
+* RBAC permissions to deploy workloads (managed centrally through Rancher)
+* An available IngressClass for Traefik (for example `traefik`)
+
+You can verify the IngressClass from Rancher’s Cluster Explorer or via the CLI:
+
+```bash
+kubectl get ingressclass
+```
+
+---
+
+### Step 1: Deploy the Application
+
+From **SUSE Rancher for AWS**, deploy workloads using Cluster Explorer or your local `kubectl` context.
+
+Apply the official Kubernetes manifest from the upstream project:
+
+```bash
+kubectl apply -f https://github.com/aws-containers/retail-store-sample-app/releases/latest/download/kubernetes.yaml
+```
+
+Wait for all deployments to become available:
+
+```bash
+kubectl wait --for=condition=available deployments --all
+```
+
+SUSE Rancher for AWS provides centralized visibility into deployment status, pod health, logs, and events across all connected clusters.
+
+---
+
+### Step 2: Update the UI Service for Traefik
+
+The default manifest exposes the `ui` service as a LoadBalancer. When using Traefik, the service should remain internal and be routed through an Ingress.
+
+Patch the service to use `ClusterIP`:
+
+```bash
+kubectl patch svc ui -p '{"spec":{"type":"ClusterIP"}}'
+```
+
+This keeps external access centralized through Traefik and aligns with ingress-based routing best practices.
+
+---
+
+### Step 3: Create a Traefik Ingress Resource
+
+Create a file named `ui-ingress.yaml`:
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: retail-ui
+  namespace: default
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: retail.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ui
+                port:
+                  number: 80
+```
+
+Apply the Ingress:
+
+```bash
+kubectl apply -f ui-ingress.yaml
+```
+
+If your cluster uses a different Traefik IngressClass name, update the `ingressClassName` field accordingly.
+
+---
+
+### Step 4: Configure DNS
+
+Point the hostname used in the Ingress (for example `retail.example.com`) to Traefik’s external address.
+
+Find the Traefik service endpoint:
+
+```bash
+kubectl get svc -n traefik
+```
+
+Create a DNS A or CNAME record that resolves to this address.
+
+---
+
+### Step 5: Verify Access and RBAC
+
+Using **SUSE Rancher for AWS**, you can verify:
+
+* Application health and rollout status
+* Ingress configuration
+* User and group access through centralized RBAC
+
+Verify the Ingress resource:
+
+```bash
+kubectl get ingress retail-ui
+```
+
+Open the configured hostname in a browser to access the Retail Store UI.
+
+---
+
+### Multi-Cluster Usage with SUSE Rancher for AWS
+
+Because SUSE Rancher for AWS provides centralized access control and governance, the same deployment pattern can be reused safely across multiple EKS clusters such as development, staging, and production.
+
+Teams can:
+
+* Apply consistent RBAC policies across clusters
+* Reuse the same manifests without modification
+* Manage access and visibility from a single control plane
+
+---
+
+### Cleanup
+
+To remove the application and routing configuration:
+
+```bash
+kubectl delete -f ui-ingress.yaml
+kubectl delete -f https://github.com/aws-containers/retail-store-sample-app/releases/latest/download/kubernetes.yaml
+```
+
+---
+
+### Notes
+
+* This guide uses standard Kubernetes Ingress resources for portability.
+* Traefik IngressRoute CRDs can also be used if enabled, but are not required.
+* TLS can be added using cert-manager or Traefik’s native TLS configuration.
+* SUSE Rancher for AWS ensures consistent RBAC and governance across all connected clusters.
+
+
+
+//============//
+
 ![Banner](./docs/images/banner.png)
 
 <div align="center">
