@@ -120,7 +120,117 @@ Verify the Ingress resource:
 kubectl get ingress retail-ui
 ```
 
-Open the configured hostname in a browser to access the Retail Store UI.
+# Expose the Retail Store UI via Traefik (Hostless Ingress)
+
+This approach is **recommended for demos** when running the retail-store-sample-app on Kubernetes with **Traefik** as the Ingress controller.
+
+It avoids DNS and `/etc/hosts` configuration by creating a **hostless Ingress** that matches **any hostname**, including the AWS ELB DNS name created by Traefik.
+
+---
+
+## When to use this
+
+Use this method when:
+
+* Traefik is already installed and exposed via a `LoadBalancer` Service
+* Your existing Ingress uses a fixed host (for example `retail.example.com`)
+* You want to access the UI quickly using the ELB URL
+* You are running a demo or workshop
+
+---
+
+## Background
+
+Kubernetes Ingress rules that specify a `host` only match requests with a matching **Host header**.
+
+If you try to access the application using the raw ELB DNS name, the request will **not** match a host-specific rule and Traefik will not route it.
+
+A **hostless Ingress rule** solves this by matching requests for **any host**.
+
+---
+
+## Solution: Create a hostless Ingress
+
+Create a second Ingress resource **without a `host` field**.
+
+This allows Traefik to route traffic to the UI service regardless of the hostname used.
+
+### Apply the Ingress
+
+If you are following the upstream repo structure, you can apply the provided Ingress manifest directly.
+
+#### Apply the repo Ingress file
+
+From the repo root:
+
+```bash
+kubectl apply -f traefik-ingress-resource.yaml
+```
+
+Or apply it straight from GitHub:
+
+```bash
+kubectl apply -f https://raw.githubusercontent.com/everythingeverywhere/retail-store-sample-app/refs/heads/main/traefik-ingress-resource.yaml
+```
+
+Note
+
+That file uses a fixed host (`retail.example.com`). For demos, you typically do not want to configure DNS or `/etc/hosts`.
+
+#### Apply the demo hostless Ingress
+
+Create a second Ingress resource **without a `host` field** so any hostname works (including the ELB DNS name).
+
+If you are using the repo, apply the hostless Ingress manifest directly.
+
+```bash
+kubectl apply -f https://raw.githubusercontent.com/everythingeverywhere/retail-store-sample-app/refs/heads/main/hosteless-ingrss.yaml
+```
+
+This manifest defines a hostless Traefik Ingress that routes traffic to the `ui` service regardless of hostname.
+
+---
+
+## Access the UI
+
+Once applied, first retrieve the Traefik LoadBalancer DNS name:
+
+```bash
+kubectl get svc traefik -n traefik
+```
+
+Look for the value under **EXTERNAL-IP** (this will be an AWS ELB hostname).
+
+Then open the Traefik LoadBalancer URL in your browser:
+
+```
+http://<TRAEFIK-ELB-DNS-NAME>/
+```
+
+Example:
+
+```
+http://ac5ebc48aa4534ff8b4583e88ed6ac90-502276271.us-east-2.elb.amazonaws.com/
+```
+
+
+## How hostless Ingress routing works
+
+* Traefik evaluates Ingress rules in order
+* A rule without `host` matches **all Host headers**
+* This allows direct access via the ELB DNS name
+* No DNS records or `/etc/hosts` entries are required
+
+
+## Cleanup
+
+If you want to remove the hostless Ingress later:
+
+```bash
+kubectl delete ingress retail-ui-anyhost -n default
+```
+
+Your original host-based Ingress (for example `retail.example.com`) will continue to work as before.
 
 ---
 
@@ -145,18 +255,12 @@ kubectl delete -f ui-ingress.yaml
 kubectl delete -f https://github.com/aws-containers/retail-store-sample-app/releases/latest/download/kubernetes.yaml
 ```
 
+
 ---
 
-### Notes
+Upstream source code bellow of orignal application.
 
-* This guide uses standard Kubernetes Ingress resources for portability.
-* Traefik IngressRoute CRDs can also be used if enabled, but are not required.
-* TLS can be added using cert-manager or Traefik’s native TLS configuration.
-* SUSE Rancher for AWS ensures consistent RBAC and governance across all connected clusters.
-
-
-
-//============//
+---
 
 ![Banner](./docs/images/banner.png)
 
