@@ -54,33 +54,16 @@ This keeps external access centralized through Traefik and aligns with ingress-b
 
 ### Step 3: Create a Traefik Ingress Resource
 
-Create a file named `ui-ingress.yaml`:
 
-```yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: retail-ui
-  namespace: default
-spec:
-  ingressClassName: traefik
-  rules:
-    - host: retail.example.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: ui
-                port:
-                  number: 80
-```
-
-Apply the Ingress:
+Apply the Ingress from the repo:
 
 ```bash
-kubectl apply -f ui-ingress.yaml
+kubectl apply -f traefik-ingress-resource.yaml
+```
+
+Or applly from raw upstream:
+```bash
+https://raw.githubusercontent.com/everythingeverywhere/retail-store-sample-app/refs/heads/main/traefik-ingress-resource.yaml
 ```
 
 If your cluster uses a different Traefik IngressClass name, update the `ingressClassName` field accordingly.
