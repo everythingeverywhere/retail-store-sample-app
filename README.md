@@ -68,17 +68,16 @@ https://raw.githubusercontent.com/everythingeverywhere/retail-store-sample-app/r
 
 If your cluster uses a different Traefik IngressClass name, update the `ingressClassName` field accordingly.
 
-### Step 4: Configure DNS
+### Step 4: Check ingress
 
-Point the hostname used in the Ingress (for example `retail.example.com`) to Traefik’s external address.
+You can check the ingress by clicking into your cluster on the Rancher UI and going to services.
 
-Find the Traefik service endpoint:
+On the CLI find the Traefik service endpoint to check a(remember to switch namespace if yours is different):
 
 ```bash
-kubectl get svc -n traefik
+kubectl get svc -n default
 ```
 
-Create a DNS A or CNAME record that resolves to this address.
 
 
 ### Step 5: Verify Access and RBAC
