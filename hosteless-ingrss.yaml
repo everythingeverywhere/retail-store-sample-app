@@ -2,16 +2,17 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: retail-ui-anyhost
-  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: traefik
 spec:
-  ingressClassName: traefik
   rules:
   - http:
       paths:
       - path: /
         pathType: Prefix
-       backend:
+        backend:
           service:
-            name: ui
+            name: retail-ui
             port:
               number: 80
+
