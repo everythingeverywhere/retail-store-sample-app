@@ -17,8 +17,11 @@ Install Traefik from the Rancher UI instead:
 1. Rancher UI → open your **Cluster**
 2. Go to **Apps** / **Apps & Marketplace** (name varies by version)
 3. Search for **Traefik**
-4. Install into namespace `traefik`
-5. Verify:
+4. Click **Install**
+5. In the **Namespace** dropdown, select `traefik`.
+   - If `traefik` is not in the list, choose **Create a new namespace** from the dropdown, name it `traefik`, then continue.
+6. Finish the install
+7. Verify:
 
 ```bash
 kubectl get pods -n traefik

@@ -242,8 +242,11 @@ Ingress controllers such as Traefik typically require cluster-scoped RBAC, so th
 1. Rancher UI → open your **Cluster**
 2. Go to **Apps** / **Apps & Marketplace** (name varies by version)
 3. Search for **Traefik** (Ingress Controller)
-4. Install it (defaults are fine) into namespace `traefik`
-5. Verify the Traefik Service is a LoadBalancer and has an external address:
+4. Click **Install**
+5. In the **Namespace** dropdown, select `traefik`.
+   - If `traefik` is not in the list, choose **Create a new namespace** from the dropdown, name it `traefik`, then continue.
+6. Finish the install (defaults are fine)
+7. Verify the Traefik Service is a LoadBalancer and has an external address:
 
 ```bash
 kubectl get svc -n traefik traefik -o wide
