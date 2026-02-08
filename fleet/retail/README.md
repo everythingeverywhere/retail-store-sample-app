@@ -2,9 +2,17 @@
 
 Path: `fleet/retail/`
 
+## Prerequisite
+
+This bundle assumes an Ingress controller is installed.
+For this demo we assume **Traefik** with an IngressClass named `traefik`.
+
+If Traefik is not installed yet, install it first using the included Fleet bundle:
+
+- `fleet/traefik/`
+
 ## What this bundle deploys
 
-- Namespace: `retail`
 - Retail Store Sample App from the upstream release manifest:
   - https://github.com/aws-containers/retail-store-sample-app/releases/latest/download/kubernetes.yaml
 - Traefik hostless Ingress (any hostname) for the UI: `retail-ui-anyhost`
@@ -12,7 +20,20 @@ Path: `fleet/retail/`
 
 ## Rancher / Fleet usage (step-by-step)
 
-### A) Deploy to a single cluster
+### A) Install Traefik first (one-time per cluster)
+
+If Traefik is already installed in the cluster, skip this.
+
+1. Rancher UI → Fleet → Git Repos → Add Repository
+2. Name: `traefik-demo`
+3. Repo URL: this repository
+4. Branch: `main`
+5. Paths: `fleet/traefik`
+6. Targets: select your cluster
+7. Target Namespace: `traefik` and enable **Create Namespace**
+8. Save and wait until it is **Ready**
+
+### B) Deploy the retail app
 
 1. In Rancher UI, go to **Fleet** → **Git Repos**
 2. Click **Add Repository**
@@ -28,13 +49,13 @@ Path: `fleet/retail/`
 5. Under **Targets**, select the cluster you want (EKS cluster managed by SUSE Rancher for AWS)
 6. Click **Create** / **Save**
 
-### B) Watch it sync
+### C) Watch it sync
 
 1. Click into the created GitRepo (`retail-demo`)
 2. Confirm status becomes **Ready / Synced**
 3. Click the created **Bundle** (or Bundles tab) to see rollout details
 
-### C) Ensure the namespace exists (important)
+### D) Ensure the namespace exists (important)
 
 If the namespace `retail` already exists from a previous install, Fleet/Helm may refuse to "adopt" it.
 
@@ -47,7 +68,7 @@ Or, when creating the GitRepo in Fleet, set:
 - **Target Namespace**: `retail`
 - **Create Namespace**: ON
 
-### D) Verify the app in Cluster Explorer
+### E) Verify the app in Cluster Explorer
 
 1. Go to **Cluster Explorer** for your target cluster
 2. Select namespace: `retail`
@@ -56,7 +77,7 @@ Or, when creating the GitRepo in Fleet, set:
    - Service Discovery → **Ingresses**: `retail-ui-anyhost`
    - Service Discovery → **Services**: `ui` is `ClusterIP`
 
-### E) Open the UI (Traefik LoadBalancer) — hostless demo
+### F) Open the UI (Traefik LoadBalancer) — hostless demo
 
 Because this bundle applies a **hostless Ingress** (`retail-ui-anyhost`), you can access the app using the raw Traefik LoadBalancer DNS name (no DNS or `/etc/hosts` needed).
 
