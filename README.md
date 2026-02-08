@@ -220,6 +220,52 @@ kubectl delete -f https://github.com/aws-containers/retail-store-sample-app/rele
 
 ---
 
+## Fleet (GitOps) deployment for SUSE Rancher for AWS
+
+This repo includes a **Fleet bundle** at:
+
+- `fleet/retail/`
+
+It deploys (via Kustomize):
+
+- Namespace: `retail`
+- Upstream app manifest: `https://github.com/aws-containers/retail-store-sample-app/releases/latest/download/kubernetes.yaml`
+- A hostless Traefik Ingress (`retail-ui-anyhost`) so you can use the Traefik ELB URL without DNS
+- A patch that forces the `ui` Service to `ClusterIP` (Ingress owns external exposure)
+
+### How to use it in Rancher
+
+1. Rancher UI → **Fleet** → **Git Repos** → **Add Repository**
+2. Repo URL: this repo (`everythingeverywhere/retail-store-sample-app`)
+3. Branch: `main`
+4. Paths: `fleet/retail`
+5. Targets: select the EKS cluster (or cluster group)
+6. (Recommended) Enable **Prune** so resources are removed when the bundle is deleted/disabled
+
+Once synced, verify in Cluster Explorer:
+
+- Workloads in namespace `retail`
+- Ingress: `retail-ui-anyhost`
+
+### Automated cleanup (recommended)
+
+**Option A: Fleet-managed cleanup (GitOps uninstall)**
+
+- In Rancher UI → Fleet → Git Repos: delete the GitRepo you created (or remove its targets).
+- Ensure **Prune** is enabled so Fleet deletes previously-applied resources.
+
+**Option B: Guaranteed cleanup (delete namespace)**
+
+If you want a hard reset for demos, delete the entire namespace:
+
+```bash
+./demo/98-nuke-retail-namespace.sh
+```
+
+This deletes the `retail` namespace and everything in it.
+
+---
+
 ![Banner](./docs/images/banner.png)
 
 <div align="center">
