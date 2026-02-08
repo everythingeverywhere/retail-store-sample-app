@@ -222,25 +222,38 @@ kubectl delete -f https://github.com/aws-containers/retail-store-sample-app/rele
 
 ## Fleet (GitOps) deployment for SUSE Rancher for AWS
 
-This repo includes a **Fleet bundle** at:
+This repo includes Fleet bundles at:
 
-- `fleet/retail/`
+- `fleet/traefik/` (installs Traefik Ingress Controller via Helm)
+- `fleet/retail/` (deploys the retail app + hostless Ingress)
 
-It deploys (via Kustomize):
+`fleet/retail/` deploys (via Kustomize):
 
-- Namespace: `retail`
 - Upstream app manifest: `https://github.com/aws-containers/retail-store-sample-app/releases/latest/download/kubernetes.yaml`
 - A hostless Traefik Ingress (`retail-ui-anyhost`) so you can use the Traefik ELB URL without DNS
 - A patch that forces the `ui` Service to `ClusterIP` (Ingress owns external exposure)
 
 ### How to use it in Rancher
 
+You can deploy Traefik + the retail app in **one** GitRepo by setting multiple paths.
+
 1. Rancher UI → **Fleet** → **Git Repos** → **Add Repository**
 2. Repo URL: this repo (`everythingeverywhere/retail-store-sample-app`)
 3. Branch: `main`
-4. Paths: `fleet/retail`
+4. Paths (add both):
+   - `fleet/traefik`
+   - `fleet/retail`
 5. Targets: select the EKS cluster (or cluster group)
-6. (Recommended) Enable **Prune** so resources are removed when the bundle is deleted/disabled
+6. Enable namespace creation:
+   - Target Namespace `traefik` (Create Namespace ON) for Traefik
+   - Target Namespace `retail` (Create Namespace ON) for the app
+   (If your Rancher UI cannot set per-path namespaces in one GitRepo, create two GitRepos instead.)
+7. (Recommended) Enable **Prune** (or ensure **Keep Resources** is OFF) so resources are removed when the GitRepo is deleted/disabled
+
+**Two GitRepo fallback (works in every UI):**
+
+- `traefik-demo` → path `fleet/traefik` → namespace `traefik`
+- `retail-demo` → path `fleet/retail` → namespace `retail`
 
 Once synced, verify in Cluster Explorer:
 
