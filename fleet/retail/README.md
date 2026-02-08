@@ -2,14 +2,29 @@
 
 Path: `fleet/retail/`
 
-## Prerequisite
+## Prerequisite: Traefik installed
 
 This bundle assumes an Ingress controller is installed.
 For this demo we assume **Traefik** with an IngressClass named `traefik`.
 
-If Traefik is not installed yet, install it first using the included Fleet bundle:
+### Install Traefik (Rancher UI)
 
-- `fleet/traefik/`
+In some SUSE Rancher for AWS environments, Fleet GitRepos are configured to **forbid cluster-scoped resources** (like `ClusterRole`).
+Traefik typically requires cluster-scoped RBAC, so installing it via Fleet/Helm may fail.
+
+Install Traefik from the Rancher UI instead:
+
+1. Rancher UI → open your **Cluster**
+2. Go to **Apps** / **Apps & Marketplace** (name varies by version)
+3. Search for **Traefik**
+4. Install into namespace `traefik`
+5. Verify:
+
+```bash
+kubectl get pods -n traefik
+kubectl get svc -n traefik traefik -o wide
+kubectl get ingressclass
+```
 
 ## What this bundle deploys
 
@@ -20,45 +35,17 @@ If Traefik is not installed yet, install it first using the included Fleet bundl
 
 ## Rancher / Fleet usage (step-by-step)
 
-### A) Install Traefik + Retail with Fleet (recommended: single GitRepo)
+## Rancher / Fleet usage (step-by-step)
 
-You can deploy **both Traefik and the retail app** from this repo using **one** Fleet GitRepo by setting *multiple paths*.
-
-Note: Some Rancher/Fleet setups restrict cluster-scoped resources when a GitRepo uses a Target Namespace.
-The included Traefik bundle is configured for **namespaced RBAC** to avoid cluster-scoped RBAC objects.
+### A) Deploy the retail app with Fleet
 
 1. Rancher UI → Fleet → Git Repos → Add Repository
 2. **Name**: `retail-demo`
 3. **Repo URL**: `https://github.com/everythingeverywhere/retail-store-sample-app.git`
 4. **Branch**: `main`
-5. **Paths** (add both):
-   - `fleet/traefik`
-   - `fleet/retail`
+5. **Paths**: `fleet/retail`
 6. **Targets**: select your cluster
-7. **IMPORTANT (Namespace setting):** Rancher/Fleet GitRepo setup often allows only **one** Target Namespace.
-
-   For the **single-GitRepo / multi-path** approach, set:
-
-   - **Target Namespace**: leave **blank / unset**
-
-   Then the bundles will use their own namespace settings:
-
-   - `fleet/traefik/fleet.yaml` installs Traefik into namespace `traefik`
-   - `fleet/retail/fleet.yaml` (defaultNamespace) + kustomize deploy into namespace `retail`
-
-   If your UI has a global **Create Namespace** toggle, enable it.
-   If it does not, create the namespaces once (or use the two-GitRepo approach below).
-
-8. Save and wait until both bundles show **Ready**
-
-### Alternative: two GitRepos (works in every UI)
-
-If your Rancher UI makes it hard to set per-path namespaces, create two GitRepos:
-
-- `traefik-demo` → path `fleet/traefik` → namespace `traefik`
-- `retail-demo` → path `fleet/retail` → namespace `retail`
-
-Deploy Traefik first, then retail.
+7. Save and wait until the bundle is **Ready**
 
 1. In Rancher UI, go to **Fleet** → **Git Repos**
 2. Click **Add Repository**

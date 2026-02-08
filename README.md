@@ -222,9 +222,8 @@ kubectl delete -f https://github.com/aws-containers/retail-store-sample-app/rele
 
 ## Fleet (GitOps) deployment for SUSE Rancher for AWS
 
-This repo includes Fleet bundles at:
+This repo includes a Fleet bundle at:
 
-- `fleet/traefik/` (installs Traefik Ingress Controller via Helm)
 - `fleet/retail/` (deploys the retail app + hostless Ingress)
 
 `fleet/retail/` deploys (via Kustomize):
@@ -235,29 +234,34 @@ This repo includes Fleet bundles at:
 
 ### How to use it in Rancher
 
-You can deploy Traefik + the retail app in **one** GitRepo by setting multiple paths.
+### Prerequisite: Install Traefik in Rancher UI (few clicks)
+
+In SUSE Rancher for AWS, Fleet GitRepos may be configured to **forbid cluster-scoped resources** (like `ClusterRole`).
+Ingress controllers such as Traefik typically require cluster-scoped RBAC, so the most reliable approach is to install Traefik from the Rancher UI.
+
+1. Rancher UI → open your **Cluster**
+2. Go to **Apps** / **Apps & Marketplace** (name varies by version)
+3. Search for **Traefik** (Ingress Controller)
+4. Install it (defaults are fine) into namespace `traefik`
+5. Verify the Traefik Service is a LoadBalancer and has an external address:
+
+```bash
+kubectl get svc -n traefik traefik -o wide
+kubectl get ingressclass
+```
+
+### Deploy the retail app with Fleet
 
 1. Rancher UI → **Fleet** → **Git Repos** → **Add Repository**
 2. Repo URL: this repo (`everythingeverywhere/retail-store-sample-app`)
 3. Branch: `main`
-4. Paths (add both):
-   - `fleet/traefik`
-   - `fleet/retail`
+4. Paths: `fleet/retail`
 5. Targets: select the EKS cluster (or cluster group)
-6. **IMPORTANT (Namespace setting):** Rancher/Fleet GitRepo setup often allows only **one** Target Namespace.
 
-   For the **single GitRepo / multiple paths** approach, set **Target Namespace** to **blank / unset**.
-   The bundles will use their own namespace settings (`traefik` and `retail`).
+Once synced, verify in Cluster Explorer:
 
-   If your UI has a global **Create Namespace** toggle, enable it.
-   If it does not, create `traefik` and `retail` namespaces once (or use the two-GitRepo approach below).
-
-7. (Recommended) Enable **Prune** (or ensure **Keep Resources** is OFF) so resources are removed when the GitRepo is deleted/disabled
-
-**Two GitRepo fallback (works in every UI):**
-
-- `traefik-demo` → path `fleet/traefik` → namespace `traefik`
-- `retail-demo` → path `fleet/retail` → namespace `retail`
+- Workloads in namespace `retail`
+- Ingress: `retail-ui-anyhost`
 
 Once synced, verify in Cluster Explorer:
 
