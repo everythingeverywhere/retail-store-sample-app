@@ -38,19 +38,11 @@ kubectl get ingressclass
 
 ## Rancher / Fleet usage (step-by-step)
 
-## Rancher / Fleet usage (step-by-step)
-
 ### A) Deploy the retail app with Fleet
 
-1. Rancher UI → Fleet → Git Repos → Add Repository
-2. **Name**: `retail-demo`
-3. **Repo URL**: `https://github.com/everythingeverywhere/retail-store-sample-app.git`
-4. **Branch**: `main`
-5. **Paths**: `fleet/retail`
-6. **Targets**: select your cluster
-7. Save and wait until the bundle is **Ready**
+In Rancher UI:
 
-1. In Rancher UI, go to **Fleet** → **Git Repos**
+1. Go to **Fleet** → **Git Repos**
 2. Click **Add Repository**
 3. Fill in **Repository Details**:
    - **Name**: `retail-demo` (any name is fine)
@@ -58,11 +50,15 @@ kubectl get ingressclass
      - (SSH URL also works if your Rancher/Fleet has access: `git@github.com:everythingeverywhere/retail-store-sample-app.git`)
    - **Branch**: `main`
    - **Paths**: `fleet/retail`
-4. (Recommended) Enable:
-   - **Prune**: ON (so cleanup is automatic when you delete/disable)
-   - **Polling**: leave default
-5. Under **Targets**, select the cluster you want (EKS cluster managed by SUSE Rancher for AWS)
-6. Click **Create** / **Save**
+4. Under **Targets**, select the cluster(s) you want (you can pick one cluster or multiple clusters)
+5. Click **Create** / **Save** and wait until the GitRepo/Bundles show **Ready / Synced**
+
+### B) Multi-cluster delivery with Fleet
+
+Fleet can deploy this same bundle to **one or many clusters**.
+
+- To deploy to multiple clusters, select multiple entries under **Targets** when creating the GitRepo.
+- Fleet will continuously sync this bundle to all selected targets, and you can watch per-cluster rollout status from the GitRepo/Bundle views.
 
 ### C) Watch it sync
 
@@ -135,7 +131,6 @@ For demos, the simplest fix is deleting that namespace and reinstalling.
 ### Option 1 (recommended): Fleet-managed uninstall
 
 - Fleet → Git Repos → select `retail-demo` → **Delete**
-- Ensure **Prune** was enabled (so Fleet deletes the resources it previously applied)
 
 ### Option 2: Hard reset (always deletes everything)
 
