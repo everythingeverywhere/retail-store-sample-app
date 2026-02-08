@@ -24,6 +24,9 @@ If Traefik is not installed yet, install it first using the included Fleet bundl
 
 You can deploy **both Traefik and the retail app** from this repo using **one** Fleet GitRepo by setting *multiple paths*.
 
+Note: Some Rancher/Fleet setups restrict cluster-scoped resources when a GitRepo uses a Target Namespace.
+The included Traefik bundle is configured for **namespaced RBAC** to avoid cluster-scoped RBAC objects.
+
 1. Rancher UI → Fleet → Git Repos → Add Repository
 2. **Name**: `retail-demo`
 3. **Repo URL**: `https://github.com/everythingeverywhere/retail-store-sample-app.git`
