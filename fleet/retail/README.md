@@ -56,14 +56,39 @@ Or, when creating the GitRepo in Fleet, set:
    - Service Discovery → **Ingresses**: `retail-ui-anyhost`
    - Service Discovery → **Services**: `ui` is `ClusterIP`
 
-### E) Open the UI (Traefik LoadBalancer)
+### E) Open the UI (Traefik LoadBalancer) — hostless demo
 
-1. Find the Traefik service external address (often in namespace `traefik`, service `traefik`):
-   - Cluster Explorer → Service Discovery → Services → namespace `traefik` → service `traefik`
-2. Copy the **LoadBalancer hostname** and open:
+Because this bundle applies a **hostless Ingress** (`retail-ui-anyhost`), you can access the app using the raw Traefik LoadBalancer DNS name (no DNS or `/etc/hosts` needed).
 
+#### Get the Traefik LoadBalancer hostname
+
+**From Rancher UI**
+
+1. Cluster Explorer → **Service Discovery → Services**
+2. Switch namespace to `traefik` (or wherever Traefik is installed)
+3. Click service `traefik`
+4. Copy the **External IP / Hostname** (AWS ELB hostname)
+
+**From kubectl** (namespace/service may differ in your environment):
+
+```bash
+kubectl get svc traefik -n traefik
 ```
-http://<TRAEFIK-LB-HOSTNAME>/
+
+Look under **EXTERNAL-IP** for the ELB hostname.
+
+#### Open the app
+
+Open in a browser:
+
+```text
+http://<TRAEFIK-ELB-DNS-NAME>/
+```
+
+Example:
+
+```text
+http://ac5ebc48aa4534ff8b4583e88ed6ac90-502276271.us-east-2.elb.amazonaws.com/
 ```
 
 ## Cleanup (automated)
