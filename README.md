@@ -244,10 +244,14 @@ You can deploy Traefik + the retail app in **one** GitRepo by setting multiple p
    - `fleet/traefik`
    - `fleet/retail`
 5. Targets: select the EKS cluster (or cluster group)
-6. Enable namespace creation:
-   - Target Namespace `traefik` (Create Namespace ON) for Traefik
-   - Target Namespace `retail` (Create Namespace ON) for the app
-   (If your Rancher UI cannot set per-path namespaces in one GitRepo, create two GitRepos instead.)
+6. **IMPORTANT (Namespace setting):** Rancher/Fleet GitRepo setup often allows only **one** Target Namespace.
+
+   For the **single GitRepo / multiple paths** approach, set **Target Namespace** to **blank / unset**.
+   The bundles will use their own namespace settings (`traefik` and `retail`).
+
+   If your UI has a global **Create Namespace** toggle, enable it.
+   If it does not, create `traefik` and `retail` namespaces once (or use the two-GitRepo approach below).
+
 7. (Recommended) Enable **Prune** (or ensure **Keep Resources** is OFF) so resources are removed when the GitRepo is deleted/disabled
 
 **Two GitRepo fallback (works in every UI):**

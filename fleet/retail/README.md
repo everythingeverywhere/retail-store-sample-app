@@ -35,10 +35,20 @@ The included Traefik bundle is configured for **namespaced RBAC** to avoid clust
    - `fleet/traefik`
    - `fleet/retail`
 6. **Targets**: select your cluster
-7. Namespaces:
-   - For `fleet/traefik`, set **Target Namespace** to `traefik` and enable **Create Namespace**
-   - For `fleet/retail`, set **Target Namespace** to `retail` and enable **Create Namespace**
-   (Depending on Rancher version, you may set one Target Namespace for the GitRepo. If so, leave it blank and rely on the bundles’ namespace settings, or create two GitRepos as described below.)
+7. **IMPORTANT (Namespace setting):** Rancher/Fleet GitRepo setup often allows only **one** Target Namespace.
+
+   For the **single-GitRepo / multi-path** approach, set:
+
+   - **Target Namespace**: leave **blank / unset**
+
+   Then the bundles will use their own namespace settings:
+
+   - `fleet/traefik/fleet.yaml` installs Traefik into namespace `traefik`
+   - `fleet/retail/fleet.yaml` (defaultNamespace) + kustomize deploy into namespace `retail`
+
+   If your UI has a global **Create Namespace** toggle, enable it.
+   If it does not, create the namespaces once (or use the two-GitRepo approach below).
+
 8. Save and wait until both bundles show **Ready**
 
 ### Alternative: two GitRepos (works in every UI)
