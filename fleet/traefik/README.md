@@ -13,9 +13,7 @@ It is configured with **namespaced RBAC** (`rbac.namespaced=true`) so it can be 
 3. Branch: `main`
 4. Paths: `fleet/traefik`
 5. Targets: select your cluster
-6. Set **Target Namespace**: `traefik`
-7. Enable **Create Namespace**
-8. (Recommended) enable cleanup/prune (wording varies by Rancher version)
+6. Ensure the Traefik bundle deploys into namespace `traefik` (Fleet will use the bundle namespace settings).
 
 Wait until the Bundle is **Ready**.
 
@@ -25,8 +23,8 @@ If you see an error like:
 
 > invalid cluster scoped object ... Your config uses targetNamespace or namespace and thus forbids cluster-scoped resources
 
-This bundle should avoid that by using namespaced RBAC.
-If you still hit it, deploy Traefik using a separate GitRepo without a GitRepo-level Target Namespace, or ask your Rancher admin to allow cluster-scoped resources for the workspace.
+This bundle is configured to avoid that by using namespaced RBAC (`rbac.namespaced=true`).
+If you still hit it, make sure your Fleet GitRepo is not forcing a Target Namespace.
 
 ## Verify
 
