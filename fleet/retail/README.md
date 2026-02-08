@@ -34,7 +34,20 @@ Path: `fleet/retail/`
 2. Confirm status becomes **Ready / Synced**
 3. Click the created **Bundle** (or Bundles tab) to see rollout details
 
-### C) Verify the app in Cluster Explorer
+### C) Ensure the namespace exists (important)
+
+If the namespace `retail` already exists from a previous install, Fleet/Helm may refuse to "adopt" it.
+
+Fastest demo fix:
+
+- Delete the namespace and re-install (see Cleanup → Hard reset)
+
+Or, when creating the GitRepo in Fleet, set:
+
+- **Target Namespace**: `retail`
+- **Create Namespace**: ON
+
+### D) Verify the app in Cluster Explorer
 
 1. Go to **Cluster Explorer** for your target cluster
 2. Select namespace: `retail`
@@ -43,7 +56,7 @@ Path: `fleet/retail/`
    - Service Discovery → **Ingresses**: `retail-ui-anyhost`
    - Service Discovery → **Services**: `ui` is `ClusterIP`
 
-### D) Open the UI (Traefik LoadBalancer)
+### E) Open the UI (Traefik LoadBalancer)
 
 1. Find the Traefik service external address (often in namespace `traefik`, service `traefik`):
    - Cluster Explorer → Service Discovery → Services → namespace `traefik` → service `traefik`
@@ -54,6 +67,9 @@ http://<TRAEFIK-LB-HOSTNAME>/
 ```
 
 ## Cleanup (automated)
+
+If you hit an error about namespace ownership/Helm metadata ("Namespace exists and cannot be imported"), it means `retail` already exists but wasn’t created by this Fleet release.
+For demos, the simplest fix is deleting that namespace and reinstalling.
 
 ### Option 1 (recommended): Fleet-managed uninstall
 

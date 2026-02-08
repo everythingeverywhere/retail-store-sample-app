@@ -4,7 +4,6 @@ kind: Kustomization
 namespace: retail
 
 resources:
-  - namespace.yaml
   - https://github.com/aws-containers/retail-store-sample-app/releases/latest/download/kubernetes.yaml
   - ingress-hostless.yaml
 
